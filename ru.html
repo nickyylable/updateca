@@ -212,38 +212,41 @@
         document.addEventListener("DOMContentLoaded", () => {
         const flipSound = new Audio('flip.mp3'); // Path to your sound file
 
-        document.getElementById("flipButton").addEventListener("click", () => {
-            if (coin) {
-                document.getElementById("resultText").style.display = 'none';
-                spinning = false;
-                coin.rotation.set(0, 0, 0);
+        document.getElementById("flipButton").addEventListener("click", function() {
+    if (coin) {
+        // Визуализация текста с результатом скрыта до окончания анимации
+        document.getElementById("resultText").style.display = 'none';
 
-                const upAndDownTween = new TWEEN.Tween(coin.position)
-                    .to({ y: [50, 13] }, 2000)
-                    .easing(TWEEN.Easing.Quadratic.InOut);
+        // Если монета уже вращается, прервать текущее вращение
+        if (!spinning) {
+            spinning = true;
+            coin.rotation.set(0, 0, 0); // Сбросить текущее вращение монеты
 
-                const rotationTween = new TWEEN.Tween(coin.rotation)
-                    .to({ y: coin.rotation.y + Math.PI * 10 }, 2000)
-                    .easing(TWEEN.Easing.Quadratic.InOut)
-                    .onComplete(() => {
-                        const result = Math.random() < 0.5 ? "Орел" : "Решка";
-                        const resultText = document.getElementById("resultText");
-                        resultText.textContent = result;
-                        resultText.style.display = 'block';
-                        resultText.style.left = result === "Орел" ? '32%' : '26%'; // Adjusted for dynamic placement
-                        resultText.classList.add("fadeInScaleUp");
-                    });
+            const upAndDownTween = new TWEEN.Tween(coin.position)
+                .to({ y: [50, 13] }, 2000)
+                .easing(TWEEN.Easing.Quadratic.InOut);
 
-                // Delay sound playback by 1 second
-                setTimeout(() => {
-                    flipSound.play();
-                }, 800);
+            const rotationTween = new TWEEN.Tween(coin.rotation)
+                .to({ y: coin.rotation.y + Math.PI * 10 }, 2000)
+                .easing(TWEEN.Easing.Quadratic.InOut)
+                .onComplete(function() {
+                    const result = Math.random() < 0.5 ? "Орел" : "Решка";
+                    document.getElementById("resultText").textContent = result;
+                    document.getElementById("resultText").style.display = 'block';
+                    spinning = false; // Остановить вращение после завершения анимации
+                });
 
-                upAndDownTween.start();
-                rotationTween.start();
-            }
-        });
-    });
+            upAndDownTween.start();
+            rotationTween.start();
+
+            // Задержка для воспроизведения звука
+            setTimeout(function() {
+                flipSound.play();
+            }, 800);
+        }
+    }
+});
+
 
         window.addEventListener("resize", function () {
             camera.aspect = window.innerWidth / window.innerHeight;
